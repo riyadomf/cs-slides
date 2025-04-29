@@ -190,6 +190,7 @@ graph TD
 # Phase 4: Update Model Values
 
 - Component values are set into model properties
+  - Initiates the backing bean (RequestScoped)
   - Updates backing bean or entity properties
   - Type conversion is applied where needed
 
