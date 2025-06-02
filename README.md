@@ -6,6 +6,12 @@ To start the slide show:
 - `pnpm dev`
 - visit <http://localhost:3030>
 
+with npm 
+- `npm run dev`
+
+To run a specific slide
+- `npm run dev <slide-name>`
+
 Edit the [slides.md](./slides.md) to see the changes.
 
 Learn more about Slidev at the [documentation](https://sli.dev/).
