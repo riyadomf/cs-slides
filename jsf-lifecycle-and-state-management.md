@@ -15,13 +15,12 @@ transition: fade
 highlighter: shiki
 lineNumbers: false
 info: |
-  ## JSF Lifecycle and State Management
-  A comprehensive overview of JavaServer Faces processing model
-title: JSF Lifecycle and State Management
+  ## CDI Scopes - Mastering Your Bean's Lifecycle
+title: Mastering CDI Bean Initialization & Loading View Data in JSF
 ---
 
-# JSF Lifecycle and State Management
-A deep dive into how JSF processes requests and maintains state
+# Mastering CDI Bean Initialization in JSF
+The Right Way to Load View Data with @PostConstruct & viewAction
 
 ---
 
@@ -170,6 +169,8 @@ graph TD
 - If validation fails:
   - Adds error messages to FacesContext
   - Skips to Render Response phase
+  
+- Initiates the backing bean (RequestScoped)
 
 <v-click>
 
@@ -190,7 +191,6 @@ graph TD
 # Phase 4: Update Model Values
 
 - Component values are set into model properties
-  - Initiates the backing bean (RequestScoped)
   - Updates backing bean or entity properties
   - Type conversion is applied where needed
 
