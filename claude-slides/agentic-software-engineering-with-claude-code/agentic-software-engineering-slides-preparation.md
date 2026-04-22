@@ -117,6 +117,8 @@ Review is non-negotiable.
 
 ## Skills: When & Why
 
+**Skill** = reusable instructions, loaded only when needed.
+
 **When to use:**
 - Recurring domain knowledge (e.g., "how to add a Jasper report")
 - Multi-step workflows (deploy, generate playwright script from squash test cases)
@@ -126,7 +128,26 @@ Review is non-negotiable.
 - Load **only when invoked** — zero idle cost
 - Plain markdown — easy to write, review, version in git
 
-Invocation: auto-trigger (keyword) · manual (`/skill-name`)
+**Invocation:** auto-trigger (when the user prompt matches the skill's `description`) · manual (`/skill-name`)
+
+---
+
+## Creating a Skill
+
+**Anatomy:**
+- Lives in `.claude/skills/{name}/SKILL.md`
+- Frontmatter:
+  - `name` — slash-command handle (`/name`)
+  - `description` — what auto-invoke matches against. Write it carefully.
+- Body: instructions, examples, links to helper docs
+
+**Two ways to write one:**
+- `/skill-generator` — Claude walks you through it
+- Manual — write the markdown, commit, done
+
+**Progressive disclosure:** `SKILL.md` can reference sibling files in the same folder — loaded only when the skill runs. Keeps the auto-loaded part small.
+
+*Rule:* explain a workflow twice → write a skill.
 
 ---
 
@@ -140,16 +161,38 @@ Invocation: auto-trigger (keyword) · manual (`/skill-name`)
 
 ---
 
-## Subagents + Hooks
+## Subagents
 
-**Subagents** — isolated Claude instances with own context
-- Built-in: `Explore` (codebase search), `Plan` (architecture), `general-purpose`
-- Custom: own tools, permissions, prompts
-- Use for deep research without polluting main chat
+- **Isolated Claude instance with its own context window**
+- Use when: deep research or task that'd pollute main chat
+- Returns a summary, not the 40 file reads it took to get there
+- **Built-in types:**
+  - `Explore` — codebase search / investigation
+  - `Plan` — architecture + implementation planning
+  - `general-purpose` — open-ended tasks
+- **Custom subagents** — markdown file with frontmatter
+  - Own tools, permissions, system prompt
+  - Lives in `.claude/agents/` (project) or `~/.claude/agents/` (user)
 
-**Hooks** — shell commands on tool events
-- Auto-format on write, block `rm -rf`, Slack alert on commit
-- Configured in `settings.json`
+*Example:* "Find all tests calling the deprecated `LegacyAuth` API" → delegate to `Explore`; main chat stays clean.
+
+---
+
+## Hooks
+
+- **Shell commands fired on Claude Code events**
+- Configured in `.claude/settings.json`
+
+**Common event types:**
+
+| Event | Fires | Use case |
+|-------|-------|----------|
+| `PreToolUse` | Before a tool runs | Block risky commands, add confirmations |
+| `PostToolUse` | After a tool completes | Auto-format, run linter, notify Slack |
+| `UserPromptSubmit` | On user message | Inject context, log prompts |
+| `SessionStart` / `Stop` | Session lifecycle | Setup / teardown, metrics |
+
+*Example:* `PreToolUse` on `Read` → if path matches `.env*`, block the read. Keeps secrets out of the agent's context.
 
 ---
 
@@ -157,7 +200,32 @@ Invocation: auto-trigger (keyword) · manual (`/skill-name`)
 
 - LLMs non-deterministic. Production must be deterministic.
 - **Testing bridges the gap** — unit, E2E, screenshots
-- UI flows → **Playwright** (we have `/squash-e2e`)
+- If you can't verify it, don't ship it.
+- Read every diff. Summary ≠ reality.
+
+---
+
+## Testing Strategy: Scope & Tooling
+
+| Layer | Tool | When |
+|-------|------|------|
+| **Unit tests** | JUnit + Mockito | Business logic, services, helpers |
+| **Ad-hoc UI testing** | Playwright CLI via Claude (agent-driven) | One-off — "does this flow work right now?" |
+| **Regression E2E** | Claude-generated Playwright scripts in `e2e/` | Durable suite — run on every PR, nightly, forever |
+
+**Why generate scripts for regression (vs. agent-run every time)?**
+
+- **Deterministic** — script is code: same input, same steps, same assertions each run
+- **Accumulates** — scripts stack into a suite; each new feature adds a spec
+- **Cheap** — one-time generation cost, then free to replay
+- **CI-friendly** — scripts run in pipelines; agent sessions don't
+- **Auditable** — reviewable code in git
+
+**Agent-driven testing shines for exploratory checks** — quick smoke, new-feature sanity, reproducing a bug interactively. When the check needs to survive past today, convert it into a spec.
+
+**QA path:** `/squash-e2e {test-case-id}` → Claude writes Playwright spec from Squash TM → review → commit → runs forever.
+
+*Principle:* **generate once, run forever.**
 
 ---
 
