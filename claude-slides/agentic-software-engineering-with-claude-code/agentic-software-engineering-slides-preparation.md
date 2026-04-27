@@ -88,15 +88,14 @@ Review is non-negotiable.
 
 ## Session Management
 
-- **Session** = one chat + its context window. Fills up → Claude gets dumber.
-- **Reset**
-  - `/clear` — wipe context, start fresh (do this between unrelated tasks)
-  - `/compact` — compress context in place
-- **Branch & aside**
-  - `--fork-session` — split off to explore without polluting main thread
-  - `/btw` — one-off side question, doesn't add to history
-  - `claude --continue` — resume last session
-- **Rewind:** `Esc` twice — undo Claude's last actions + restore files
+- **Session** = one chat + its context window
+- Context fills up → Claude gets dumber → output quality drops
+- **Three moves to fight context bloat:**
+  - **Reset** when topic changes
+  - **Branch** when you need to side-explore
+  - **Rewind** when Claude goes off-rails
+
+*Commands on the cheatsheet near the end of the deck.*
 
 ---
 
@@ -247,6 +246,48 @@ Review is non-negotiable.
 | [rtk](https://github.com/rtk-ai/rtk) | Smarter bash execution |
 | [claude-mem](https://github.com/thedotmack/claude-mem) | Cross-session memory |
 | [graphify](https://github.com/safishamsi/graphify) | Codebase context via graph |
+
+---
+
+## Cheatsheet
+
+**Session control**
+
+| Command | What it does |
+|---------|--------------|
+| `/context` | Visualize context usage |
+| `/clear` | Wipe context, keep session |
+| `/compact` | Compress context in place |
+| `/btw` | Side question, doesn't pollute history |
+| `/export [file]` | Save conversation to file (or clipboard) |
+| `Esc` × 2 | Rewind — restores chat + files |
+
+**Resume & branch (CLI)**
+
+| Command | What it does |
+|---------|--------------|
+| `claude --continue` | Resume last session |
+| `claude --resume` | Pick a session from a list |
+| `claude --continue --fork-session` | Branch — preserve history, new ID |
+
+**Modes & shortcuts**
+
+| Command | What it does |
+|---------|--------------|
+| `Shift+Tab` | Cycle permission modes (default → auto-accept → plan) |
+| `@filename` | Reference a file inline in your prompt |
+| `!<command>` | Run a shell command from the prompt — output lands in chat |
+| `/loop 5m /cmd` | Run on interval (`/loop /cmd` = self-paced) |
+
+**Manage**
+
+`/agents` · `/memory` · `/skills` · `/mcp` · `/help`
+
+---
+
+**Further reading:**
+- 📘 [Official Anthropic cheatsheet](https://support.claude.com/en/articles/14553413-claude-code-cheatsheet) — concepts + canonical commands
+- 📚 [cc.storyfox.cz](https://cc.storyfox.cz/) — community deep reference, auto-updated daily (CLI flags, hooks, env vars)
 
 ---
 
